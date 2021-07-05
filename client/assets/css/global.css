@@ -1,0 +1,25 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Raleway", sans-serif;
+}
+
+::selection {
+  background-color: yellow;
+  color: black;
+}
+
+html, body {
+  background-color: #001055;
+  color: white;
+}
+
+input, textarea {
+  background-color: #001055;
+  color: white;
+  border: 2px solid white;
+  border-radius: 1rem;
+  outline: none;
+  font-size: 1.5rem;
+}

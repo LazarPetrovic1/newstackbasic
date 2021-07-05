@@ -23,6 +23,12 @@ export class UsersController {
     return await this.usersService.create(createUserDto)
   }
 
+  @Post("login")
+  async login(@Body() user): Promise<Object> {
+    const { email, password } = user
+    return await this.usersService.login(email, password);
+  }
+
   @Delete(":id")
   remove(@Param("id") id): Promise<User> {
     return this.usersService.remove(id)

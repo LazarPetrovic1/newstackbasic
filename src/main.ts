@@ -13,6 +13,7 @@ async function bootstrap() {
   // await orm.em.persistAndFlush(user)
   // const users = await orm.em.find(User, {})
   // console.log(users);
-  await app.listen(3000);
+  app.enableCors()
+  await app.listen(4500);
 }
 bootstrap();
