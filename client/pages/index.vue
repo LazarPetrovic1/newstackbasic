@@ -1,16 +1,16 @@
 <template>
-  <div v-if="user && user.name && user.email && user.password">
-    <p>Name: <UpdateField @user-changed="updateUser" :id="user.id" :user="user" itemName="name" :item="user.name" /></p>
-    <p>E-Mail: <UpdateField @user-changed="updateUser" :id="user.id" :user="user" itemName="email" :item="user.email" /></p>
+  <div v-if="userState && userState.name && userState.email && userState.password">
+    <p>Name: <UpdateField @user-changed="updateUser" :id="userState.id" :user="userState" itemName="name" :item="userState.name" /></p>
+    <p>E-Mail: <UpdateField @user-changed="updateUser" :id="userState.id" :user="userState" itemName="email" :item="userState.email" /></p>
     <p>
       <span>Change password: </span>
       <input
         style="display: inline-block; margin-bottom: 1rem; padding: 0.5rem 1rem;"
         type="password"
-        :placeholder="user.password"
+        :placeholder="userState.password"
         v-model="password"
       >
-      <button @click="changeUser(user.id, user)" class="fs-24">
+      <button @click="changeUser(userState.id, user)" class="fs-24">
         <fa-icon :icon="['fas', 'check-double']" />
       </button>
     </p>
@@ -22,47 +22,50 @@
 
 <script lang="ts">
 import UpdateField from "../components/UpdateField.vue"
+import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: "Home",
+  computed: {
+    ...mapState(['user']),
+    ...mapGetters({
+      storeUser: "storeUser"
+    })
+  },
   data() {
     return {
-      user: null,
+      userState: null,
       password: ''
-    }
-  },
-  mounted() {
-    const stringifiedUser = localStorage.getItem('user')
-    console.log("stringifiedUser", stringifiedUser);
-    if (stringifiedUser) {
-      const parsedUser = JSON.parse(stringifiedUser)
-      this.user = parsedUser
     }
   },
   components: {
     UpdateField
   },
+  async mounted() {
+    // this.userState = await this.$store.$getters["storeUser"]
+    // console.log(this.userState, "STATE");
+    await this.$store.dispatch('populateUsers');
+    console.log(await this.$store.getters.initUsers)
+    
+  },
   methods: {
+    ...mapMutations({
+      addUser: 'addUser'
+    }),
+    ...mapActions(['getUser', 'putUser']),
     updateUser (newUser: Object) {
-      localStorage.setItem('user', JSON.stringify(newUser))
-      window.location.reload(true)
+      this.$store.commit("addUser", newUser)
     },
     async changeUser(id: string, user: any) {
-      console.log("CHANGE USER - DIS", this);
-      
       const newUser = {
         ...user,
         password: this.password
       }
-      const config = {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
       const body = JSON.stringify(newUser)
-      const res = await this.$axios.put(`http://localhost:4500/users/${user.id}`, body, config)
-      localStorage.setItem('user', JSON.stringify(res.data))
-      window.location.reload(true)
+      this.$store.dispatch('putUser', this.$store.state.user.id, body)
+    },
+    ps() {
+      this.userState = this.$store.user
     }
   }
 }

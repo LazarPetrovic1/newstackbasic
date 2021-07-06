@@ -32,7 +32,6 @@ export default {
   mounted() {
     // MORA ARROW FUNC
     (() => {
-      console.log("DIS", this);
       const token = localStorage.getItem('token')
       if (token) {
         this.$nuxt.$options.router.push("/")

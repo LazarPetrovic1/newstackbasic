@@ -14,8 +14,13 @@
 </template>
 
 <script>
+import { mapState, mapActions, mapMutations } from 'vuex'
+
 export default {
   name: "Login",
+  computed: {
+    ...mapState(['user'])
+  },
   data() {
     return {
       email: '',
@@ -23,6 +28,10 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['getUser']),
+    ...mapMutations({
+      addUser: 'addUser'
+    }),
     async login() {
       const config = {
         headers: {
@@ -32,8 +41,9 @@ export default {
       const body = JSON.stringify({ email: this.email, password: this.password })
       const res = await this.$axios.post("http://localhost:4500/users/login", body, config)
       localStorage.setItem('token', res.data.token)
-      localStorage.setItem('user', JSON.stringify(res.data.user))
-      window.location.reload(true)
+      localStorage.setItem('id', res.data.user.id)
+      this.$store.commit('addUser', res.data.user)
+      // window.location.reload(true)
     }
   }
 }
