@@ -12,7 +12,6 @@ async function bootstrap() {
   // const user = orm.em.create(User, { email: "bob@bob.bob", name: "Bob", password: "15577800" })
   // await orm.em.persistAndFlush(user)
   // const users = await orm.em.find(User, {})
-  // console.log(users);
   app.enableCors()
   await app.listen(4500);
 }

@@ -3,8 +3,12 @@
     <form @submit.prevent="login" class="form">
       <h1 class="desc">Log into your account!</h1>
       <input name="email" type="email" v-model="email" placeholder="Your E-mail" class="field">
-      <input name="password" type="password" v-model="password" placeholder="Your Password" class="field">
-      <button type="submit" class="submit">
+      <div class="rel">
+        <input name="password" :type="seePassword ? 'text' : 'password'" v-model="password" placeholder="Your Password" class="field">
+        <fa-icon class="absicon pointer" @click="() => seePassword = !seePassword" :icon="seePassword ? ['fas', 'eye-slash'] : ['fas', 'eye']" />
+      </div>
+      <div v-if="infomsg" class="infomsg">{{ infomsg }}</div>
+      <button type="submit" class="submit pointer">
         <fa-icon :icon="['fas', 'chevron-left']" />
         <span>Submit</span>
         <fa-icon :icon="['fas', 'chevron-right']" />
@@ -24,11 +28,28 @@ export default {
   data() {
     return {
       email: '',
-      password: ''
+      password: '',
+      infomsg: '',
+      seePassword: false,
+      infomsg: ''
+    }
+  },
+  head() {
+    return {
+      title: "Basic App | Login",
+      meta: [
+        { charset: "utf-8" },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        {
+          hid: "description",
+          name: "description",
+          content: "This is the login page of the application"
+        }
+      ]
     }
   },
   methods: {
-    ...mapActions(['getUser']),
+    ...mapActions(['getUser', 'addUser']),
     ...mapMutations({
       addUser: 'addUser'
     }),
@@ -40,16 +61,20 @@ export default {
       }
       const body = JSON.stringify({ email: this.email, password: this.password })
       const res = await this.$axios.post("http://localhost:4500/users/login", body, config)
-      localStorage.setItem('token', res.data.token)
-      localStorage.setItem('id', res.data.user.id)
-      this.$store.commit('addUser', res.data.user)
-      // window.location.reload(true)
+      if (res.data.token && res.data.user.id) {
+        localStorage.setItem('token', res.data.token)
+        localStorage.setItem('id', res.data.user.id)
+        this.$store.dispatch('addUser', res.data.user)
+      this.$nuxt.$options.router.push("/")
+      } else {
+        this.infomsg = res.data
+      }
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
   .container {
     display: flex;
   }
@@ -69,6 +94,7 @@ export default {
     display: block;
     margin-bottom: 1rem;
     padding: 0.5rem 1rem;
+    width: 100%;
   }
 
   .submit {
@@ -79,7 +105,31 @@ export default {
     border-radius: 1rem;
     border: none;
     outline: none;
-    cursor: pointer;
+  }
+
+  .desc {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .absicon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-100%);
+    z-index: 2;
+  }
+
+  .rel {
+    position: relative;
+  }
+
+  .infomsg {
+    text-align: center;
+    /* font-size: 0.8rem; */
+    font-weight: bolder;
+    color: #d45151;
+    margin: 1rem 0 1.5rem 0;
   }
 
   .desc {

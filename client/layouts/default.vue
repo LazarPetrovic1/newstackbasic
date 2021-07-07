@@ -13,3 +13,14 @@ export default {
   }
 }
 </script>
+
+<style>
+  .pointer {
+    cursor: pointer;
+  }
+
+  .normalize-links {
+    color: white;
+    text-decoration: none;
+  }
+</style>

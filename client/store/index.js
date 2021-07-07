@@ -1,5 +1,6 @@
 export const state = () => ({
-  user: []
+  user: null,
+  users: []
 })
 
 export const mutations = {
@@ -7,8 +8,7 @@ export const mutations = {
     state.user = user
   },
   populateUsers(state, user) {
-    state.user = user.splice('')
-    console.log(state);
+    state.users = user.splice('')
   }
 }
 
@@ -26,18 +26,17 @@ export const actions = {
     const res = await this.$axios.get(`http://localhost:4500/users/${id}`, body, config)
     await commit("addUser", res.data)
   },
-  async populateUsers({commit}){
+  async populateUsers({ commit }){
     const res = await this.$axios.get(`http://localhost:4500/users`);
     await commit ('populateUsers', res.data);
+  },
+  async addUser({ commit }, user) {
+    await commit('addUser', user)
   }
 }
 
 export const getters = {
-  storeUser: (state) => {
-    return state;
-  },
-  initUsers: (state) => {
-    console.log(state);
-    return state.user;
-  }
+  storeUser: (state) => state,
+  initUsers: (state) => state.users,
+  initUser: (state) => state.user
 }
