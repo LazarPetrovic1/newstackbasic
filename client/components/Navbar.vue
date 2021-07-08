@@ -5,6 +5,18 @@
         <fa-icon :icon="['fas', 'home']" />
         <nuxt-link to="/">Home</nuxt-link>
       </li>
+      <li v-if="isUser">
+        <fa-icon :icon="['fas', 'plus']" />
+        <nuxt-link to="/items/post">Post</nuxt-link>
+      </li>
+      <li v-if="isUser">
+        <fa-icon :icon="['fas', 'mail-bulk']" />
+        <nuxt-link to="/items">Posts</nuxt-link>
+      </li>
+      <li v-if="isUser">
+        <fa-icon :icon="['fas', 'sign-out-alt']" />
+        <button @click="logout" class="nuxt-link-button pointer">Sign out</button>
+      </li>
       <li v-if="!isUser">
         <fa-icon :icon="['fas', 'sign-in-alt']" />
         <nuxt-link to="/login">Log in</nuxt-link>
@@ -12,10 +24,6 @@
       <li v-if="!isUser">
         <fa-icon :icon="['fas', 'user-plus']" />
         <nuxt-link to="/register">Register</nuxt-link>
-      </li>
-      <li v-if="isUser">
-        <fa-icon :icon="['fas', 'sign-out-alt']" />
-        <button @click="logout" class="nuxt-link-button pointer">Sign out</button>
       </li>
     </ul>
   </nav>

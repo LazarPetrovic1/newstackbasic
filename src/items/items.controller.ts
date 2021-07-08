@@ -13,7 +13,7 @@ export class ItemsController {
   }
 
   @Get(":id")
-  async findOne(@Param('id') id): Promise<Item> {
+  async findOne(@Param('id') id: number): Promise<Item> {
     return await this.itemsService.findOne(id)
   }
 
@@ -23,12 +23,12 @@ export class ItemsController {
   }
 
   @Delete(':id')
-  remove(@Param("id") id): Promise<Item> {
+  remove(@Param("id") id: number): Promise<Item> {
     return this.itemsService.remove(id)
   }
 
   @Put(":id")
-  update(@Body() updateItemDto: CreateItemDTO, @Param("id") id): Promise<Item> {
+  update(@Body() updateItemDto: CreateItemDTO, @Param("id") id: number): Promise<Item> {
     return this.itemsService.update(id, updateItemDto)
   }
 }

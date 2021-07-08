@@ -23,7 +23,7 @@ export const actions = {
         "Content-Type": "application/json"
       }
     }
-    const res = await this.$axios.get(`http://localhost:4500/users/${id}`, body, config)
+    const res = await this.$axios.put(`http://localhost:4500/users/${id}`, body, config)
     await commit("addUser", res.data)
   },
   async populateUsers({ commit }){

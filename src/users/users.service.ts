@@ -25,7 +25,7 @@ export class UsersService {
     return await this.userRepository.findAll();
   }
 
-  async update(id: string, user: User): Promise<UserEntity> {
+  async update(id: number, user: User): Promise<UserEntity> {
     const newUser = this.userRepository.create(user)
     const salt: string = await bcrypt.genSalt(10);
     newUser.password = await bcrypt.hash(newUser.password, salt);
@@ -33,11 +33,11 @@ export class UsersService {
     return newUser;
   }
 
-  async findOne(id: string): Promise<UserEntity> {
+  async findOne(id: number): Promise<UserEntity> {
     return await this.userRepository.findOne({ id })
   }
 
-  async remove(id: string): Promise<UserEntity> {
+  async remove(id: number): Promise<UserEntity> {
     const user = await this.userRepository.findOne({ id })
     await this.userRepository.removeAndFlush(user)
     return user;

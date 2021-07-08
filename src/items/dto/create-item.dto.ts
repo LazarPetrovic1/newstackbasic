@@ -1,5 +1,5 @@
 export class CreateItemDTO {
-  readonly id: string;
+  readonly id: number;
   readonly content: string;
   readonly title: string;
   readonly meta: string[];

@@ -11,7 +11,7 @@ export class ItemsService {
     private readonly itemRepository: EntityRepository<ItemEntity>
   ) {}
 
-  async create(item: Item): Promise<Item> {
+  async create(item: Item): Promise<ItemEntity> {
     const newItem = this.itemRepository.create(item)
     await this.itemRepository.persistAndFlush(newItem)
     return newItem;
@@ -21,17 +21,17 @@ export class ItemsService {
     return await this.itemRepository.findAll()
   }
 
-  async update(id: string, item: Item): Promise<ItemEntity> {
+  async update(id: number, item: Item): Promise<ItemEntity> {
     const newItem = this.itemRepository.create(item)
     await this.itemRepository.nativeUpdate({ id }, this.itemRepository.create(item))
     return newItem
   }
 
-  async findOne(id: string): Promise<ItemEntity> {
+  async findOne(id: number): Promise<ItemEntity> {
     return await this.itemRepository.findOne({ id })
   }
 
-  async remove(id: string): Promise<ItemEntity> {
+  async remove(id: number): Promise<ItemEntity> {
     const item = await this.itemRepository.findOne({ id })
     await this.itemRepository.removeAndFlush(item)
     return item

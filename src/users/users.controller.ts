@@ -14,7 +14,7 @@ export class UsersController {
   }
 
   @Get(":id")
-  async findOne(@Param('id') id): Promise<User> {
+  async findOne(@Param('id') id: number): Promise<User> {
     return await this.usersService.findOne(id)
   }
 
@@ -24,18 +24,18 @@ export class UsersController {
   }
 
   @Post("login")
-  async login(@Body() user): Promise<Object> {
+  async login(@Body() user: any): Promise<Object> {
     const { email, password } = user
     return await this.usersService.login(email, password);
   }
 
   @Delete(":id")
-  remove(@Param("id") id): Promise<User> {
+  remove(@Param("id") id: number): Promise<User> {
     return this.usersService.remove(id)
   }
 
   @Put(":id")
-  update(@Body() updateUserDto: CreateUserDTO, @Param("id") id): Promise<User> {
+  update(@Body() updateUserDto: CreateUserDTO, @Param("id") id: number): Promise<User> {
     return this.usersService.update(id, updateUserDto);
   }
 }
