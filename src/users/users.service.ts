@@ -17,6 +17,7 @@ export class UsersService {
     const newUser = this.userRepository.create(user)
     const salt: string = await bcrypt.genSalt(10);
     newUser.password = await bcrypt.hash(newUser.password, salt);
+    newUser.items = []
     await this.userRepository.persistAndFlush(newUser)
     return newUser;
   }

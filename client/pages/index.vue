@@ -32,14 +32,11 @@ import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
 
 export default {
   name: "Home",
-  computed: {
-    ...mapState(['user']),
-    ...mapGetters({
-      storeUser: "storeUser",
-      initUser: "initUser",
-      initUsers: "initUsers"
-    })
+  components: {
+    UpdateField,
+    UserCard
   },
+  // PROPS,
   head() {
     return {
       title: "Basic App | Homepage",
@@ -55,19 +52,27 @@ export default {
     }
   },
   data() {
-    return {
+    const data: {
+      userState: string | null,
+      password: string,
+      allUsers: any[]
+    } = {
       userState: null,
       password: '',
       allUsers: []
     }
+    return data
   },
-  components: {
-    UpdateField,
-    UserCard
+  computed: {
+    ...mapGetters({
+      storeUser: "storeUser",
+      initUser: "initUser",
+      initUsers: "initUsers"
+    })
   },
   async mounted() {
     if (!localStorage.getItem('token') && !JSON.parse(localStorage.getItem('id'))) {
-      this.$nuxt.$options.router.push("/login")
+      this.$router.push("/login")
       return;
     }
     await this.$store.dispatch('populateUsers');
@@ -77,10 +82,6 @@ export default {
     this.allUsers = await this.$store.getters.initUsers.filter((user: any) => parseInt(user.id) !== JSON.parse(localStorage.getItem('id'))).sort((a, b) => parseInt(a.id) - parseInt(b.id))
   },
   methods: {
-    ...mapMutations({
-      addUser: 'addUser'
-    }),
-    ...mapActions(['getUser', 'putUser', 'populateUsers']),
     updateUser (newUser: Object) {
       this.$store.commit("addUser", newUser)
     },
@@ -91,9 +92,6 @@ export default {
       }
       const body = JSON.stringify(newUser)
       this.$store.dispatch('putUser', this.$store.state.user.id, body)
-    },
-    ps() {
-      this.userState = this.$store.user
     }
   },
 }

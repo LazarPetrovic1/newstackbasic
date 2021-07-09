@@ -12,7 +12,9 @@ export class ItemsService {
   ) {}
 
   async create(item: Item): Promise<ItemEntity> {
+    console.log("AJTEM", item);
     const newItem = this.itemRepository.create(item)
+    console.log("NJUAJTEM", newItem);
     await this.itemRepository.persistAndFlush(newItem)
     return newItem;
   }

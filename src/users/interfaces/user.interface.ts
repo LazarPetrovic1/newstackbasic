@@ -1,3 +1,5 @@
+import { Item } from "src/entities/Item";
+
 export interface User {
   id?: number;
   name: string;
@@ -5,4 +7,5 @@ export interface User {
   password: string;
   createdAt: Date;
   updatedAt: Date;
+  items: Item[]
 }

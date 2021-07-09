@@ -6,17 +6,32 @@
         <span class="metatag" v-for="metaitem in $props.item.meta" :key="metaitem">{{ metaitem }}</span>
       </div>
       <h2 class="title">{{ $props.item.title }}</h2>
-      <p class="content">{{ $props.item.content }}</p>
+      <p class="content">{{ $props.item.content.replace(/\\n/g, "\r\n") }}</p>
+      <p v-if="user.name" style="font-size: 1.2rem; padding: 1rem; text-align: right">{{ user.name }}</p>
     </div>
   </nuxt-link>
 </template>
 
 <script>
 export default {
+  name: "PostItem",
   props: {
     item: Object
   },
-  name: "PostItem"
+  data() {
+    return {
+      user: {}
+    }
+  },
+  async mounted() {
+    await this.getUser()
+  },
+  methods: {
+    async getUser() {
+      const res = await this.$axios.get(`http://localhost:4500/users/${this.item.author}`)
+      this.user = await res.data
+    }
+  }
 }
 </script>
 

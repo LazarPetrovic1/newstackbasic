@@ -52,7 +52,7 @@ export default {
       const token = localStorage.getItem('token')
       if (token) {
         this.isUser = true
-        this.$nuxt.$options.router.push("/")
+        this.$router.push("/")
       }
       this.token = token
     })()
@@ -61,7 +61,7 @@ export default {
     logout() {
       localStorage.removeItem('token');
       localStorage.removeItem('id');
-      this.$nuxt.$options.router.push("/login")
+      this.$router.push("/login")
       this.token = ''
       this.isUser = false
     }

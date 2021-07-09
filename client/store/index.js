@@ -5,6 +5,7 @@ export const state = () => ({
 
 export const mutations = {
   addUser(state, user) {
+    console.log('123', user)
     state.user = user
   },
   populateUsers(state, user) {
@@ -38,5 +39,5 @@ export const actions = {
 export const getters = {
   storeUser: (state) => state,
   initUsers: (state) => state.users,
-  initUser: (state) => state.user
+  initUser: (state) =>  state.user
 }

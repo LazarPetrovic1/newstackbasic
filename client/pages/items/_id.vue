@@ -2,7 +2,7 @@
   <div>
     <div class="container" v-if="Object.keys(item).length > 0">
       <h2 class="title" v-if="item.title">{{ item.title }}</h2>
-      <p class="content" v-if="item.content">{{ item.content }}</p>
+      <p class="content" v-if="item.content">{{ item.content.replace(/\\n/g, "\n") }}</p>
     </div>
     <div v-else>
       Loading...

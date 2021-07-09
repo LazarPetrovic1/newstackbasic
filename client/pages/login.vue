@@ -65,7 +65,7 @@ export default {
         localStorage.setItem('token', res.data.token)
         localStorage.setItem('id', res.data.user.id)
         this.$store.dispatch('addUser', res.data.user)
-      this.$nuxt.$options.router.push("/")
+        this.$router.push("/")
       } else {
         this.infomsg = res.data
       }

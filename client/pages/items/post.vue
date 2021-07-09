@@ -35,15 +35,6 @@
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex';
 export default {
   name: "Post",
-  computed: {
-    ...mapState(['selectedItem', 'allItems']),
-    ...mapMutations({
-      pushItem: 'items/pushItem'
-    }),
-    ...mapGetters({
-      initItems: 'items/initItems'
-    })
-  },
   head() {
     return {
       title: `Basic App | Create an item`,
@@ -67,10 +58,15 @@ export default {
       metaMsg: ''
     }
   },
+  computed: {
+    ...mapState(['selectedItem', 'allItems']),
+    ...mapGetters({
+      initItems: 'items/initItems',
+      initUser: 'initUser'
+    })
+  },
   methods: {
-    ...mapActions(['items/addItem']),
     async createPost() {
-      console.log("!!!CREATED ITEM!!!");
       const config = {
         headers: {
           "Content-Type": "application/json"
@@ -79,15 +75,15 @@ export default {
       const body = JSON.stringify({
         title: this.title,
         content: this.content,
-        meta: this.meta
+        meta: this.meta,
+        author: this.initUser.id
       })
+      console.log(body);
       const res = await this.$axios.post("http://localhost:4500/items/", body, config)
       await this.$store.dispatch("items/addItem", res.data)
-      await this.$nuxt.$options.router.push("/")
+      await this.$router.push("/")
     },
     addMetaTag() {
-      console.log("VUEX STORE FROM POST", this.$store);
-      // console.log("VUEX STORE FROM POST", this.$store.getters["items/initItem"]);
       const isNotInMeta = this.meta.filter(val => val === this.metaValue).length < 1
       const isOver10 = this.meta.length > 9
       if (isNotInMeta && !isOver10) {
@@ -163,6 +159,7 @@ export default {
     border: 2px double white;
     cursor: pointer;
     transition: 250ms all ease;
+    font-size: 1.5rem;
   }
 
   .submitter:hover {
