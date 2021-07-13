@@ -78,7 +78,6 @@ export default {
         meta: this.meta,
         author: this.initUser.id
       })
-      console.log(body);
       const res = await this.$axios.post("http://localhost:4500/items/", body, config)
       await this.$store.dispatch("items/addItem", res.data)
       await this.$router.push("/")

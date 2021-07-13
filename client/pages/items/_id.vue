@@ -19,7 +19,6 @@ export default {
   },
   async mounted() {
     const res = await this.$axios.get(`http://localhost:4500/items/${this.$route.params.id}`)
-    console.log("REZ TACKA DEJTA", res.data);
     this.item = await res.data
   },
   head() {
@@ -34,11 +33,6 @@ export default {
           content: `This is the item by id`
         }
       ]
-    }
-  },
-  methods: {
-    logdata() {
-      console.log("AJTEM", this.item)
     }
   }
 }

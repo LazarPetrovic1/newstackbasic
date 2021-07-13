@@ -24,9 +24,8 @@ export class UsersController {
   }
 
   @Post("login")
-  async login(@Body() user: any): Promise<Object> {
-    const { email, password } = user
-    return await this.usersService.login(email, password);
+  async login(@Body() user: { email: string, password: string }): Promise<Object> {
+    return await this.usersService.login(user.email, user.password);
   }
 
   @Delete(":id")

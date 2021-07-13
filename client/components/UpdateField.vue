@@ -30,9 +30,6 @@ export default {
       value: this.$props.item
     }
   },
-  created() {
-    console.log(this.$props);
-  },
   methods: {
     async changeUser(id, user) {
       const newUser = {

@@ -8,7 +8,7 @@ import mikroConfig from "./mikro-orm.config"
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const orm = await MikroORM.init(mikroConfig)
-  // await orm.getMigrator().up()
+  await orm.getMigrator().up()
   // const user = orm.em.create(User, { email: "bob@bob.bob", name: "Bob", password: "15577800" })
   // await orm.em.persistAndFlush(user)
   // const users = await orm.em.find(User, {})

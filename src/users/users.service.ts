@@ -1,14 +1,16 @@
-import { EntityRepository } from '@mikro-orm/core';
-import { Injectable } from '@nestjs/common';
-import { User } from './interfaces/user.interface';
-import { User as UserEntity } from "../entities/User"
 import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityRepository } from '@mikro-orm/postgresql';
+import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs'
 import * as jwt from 'jsonwebtoken'
+import { User as UserEntity } from "../entities/User"
+// import { UsersRepository } from './users.repository';
+import { User } from './interfaces/user.interface';
 
 @Injectable()
 export class UsersService {
   constructor(
+    // private readonly userRepository: UsersRepository
     @InjectRepository(UserEntity)
     private readonly userRepository: EntityRepository<UserEntity>
   ) {}
@@ -17,7 +19,6 @@ export class UsersService {
     const newUser = this.userRepository.create(user)
     const salt: string = await bcrypt.genSalt(10);
     newUser.password = await bcrypt.hash(newUser.password, salt);
-    newUser.items = []
     await this.userRepository.persistAndFlush(newUser)
     return newUser;
   }
@@ -30,12 +31,18 @@ export class UsersService {
     const newUser = this.userRepository.create(user)
     const salt: string = await bcrypt.genSalt(10);
     newUser.password = await bcrypt.hash(newUser.password, salt);
-    await this.userRepository.nativeUpdate({ id }, this.userRepository.create(user))
+    await this.userRepository.nativeUpdate({ id }, newUser)
     return newUser;
   }
 
   async findOne(id: number): Promise<UserEntity> {
-    return await this.userRepository.findOne({ id })
+    const newUser = await this.userRepository.findOne({ id })
+    await newUser.items.init()
+    for (let i = 0;i < newUser.items.length; i++) {
+      newUser.items.hydrate(Array.from(newUser.items))
+    }
+    newUser.items.populated();
+    return newUser
   }
 
   async remove(id: number): Promise<UserEntity> {
@@ -46,25 +53,12 @@ export class UsersService {
 
   async login(email: string, password: string): Promise<Object> {
     const user = await this.userRepository.findOne({ email })
-    if (!user) {
-      return `There is no registered user with the email ${email}.`
-    }
+    console.log("JUZER", user);
+    if (!user) return `There is no registered user with the email ${email}.`
     const isMatch: boolean = await bcrypt.compare(password, user.password)
-    if (!isMatch) {
-      return `Password doesn't match for user with email ${email}.`
-    }
-
-    const payload = {
-      user: {
-        id: user.id,
-      },
-    };
-
+    if (!isMatch) return `Password doesn't match for user with email ${email}.`
+    const payload = { user: { id: user.id } };
     const token: Promise<string> = await jwt.sign(payload, "somesecretsalthashingstringofconcatenatedtext", { expiresIn: 360000000 })
-
-    return {
-      token,
-      user
-    };
+    return { token, user };
   }
 }

@@ -1,6 +1,6 @@
-// import { EntityRepository, Repository } from "@mikro-orm/core";
-// import { User } from "../entities/User";
-// import { UsersService } from "./users.service";
+import { Repository } from "@mikro-orm/core";
+import { EntityRepository } from "@mikro-orm/postgresql";
+import { User } from "../entities/User";
 
-// @Repository(User)
-// export class UsersRepository extends EntityRepository<User> {}
+@Repository(User)
+export class UsersRepository extends EntityRepository<User> {}

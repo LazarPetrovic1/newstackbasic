@@ -1,3 +1,4 @@
+import { Control } from "src/entities/Control";
 import { Item } from "src/entities/Item";
 
 export interface User {
@@ -7,5 +8,6 @@ export interface User {
   password: string;
   createdAt: Date;
   updatedAt: Date;
-  items: Item[]
+  items: number[];
+  votes: Control[];
 }

@@ -1,3 +1,4 @@
+import { Control } from "src/entities/Control";
 import { Item } from "src/entities/Item";
 
 export class CreateUserDTO {
@@ -6,5 +7,6 @@ export class CreateUserDTO {
   readonly password: string;
   readonly createdAt: Date;
   readonly updatedAt: Date;
-  readonly items: Item[];
+  readonly items: number[];
+  readonly votes: Control[];
 }

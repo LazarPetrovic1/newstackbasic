@@ -9,6 +9,9 @@ import { UsersModule } from './users/users.module';
 import { ItemsController } from './items/items.controller';
 import { ItemsModule } from './items/items.module';
 import { Item } from './entities/Item';
+import { ControlController } from './control/control.controller';
+import { ControlModule } from './control/control.module';
+import { Control } from './entities/Control';
 
 const defaultOptions : Options = {
   type: 'postgresql',
@@ -23,12 +26,13 @@ const defaultOptions : Options = {
     MikroOrmModule.forRoot({
       ...defaultOptions,
       host: 'localhost',
-      entities: [User, Item]
+      entities: [User, Item, Control]
     } as Options),
     UsersModule,
-    ItemsModule
+    ItemsModule,
+    ControlModule
   ],
-  controllers: [AppController, UsersController, ItemsController],
+  controllers: [AppController, UsersController, ItemsController, ControlController],
   providers: [AppService],
 })
 export class AppModule {}

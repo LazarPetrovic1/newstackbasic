@@ -1,25 +1,39 @@
-import { EntityRepository } from '@mikro-orm/core';
+import { QueryOrder } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Item as ItemEntity } from 'src/entities/Item';
 import { Item } from './interfaces/item.interface';
+import { User as UserEntity } from 'src/entities/User';
+import { EntityRepository } from '@mikro-orm/postgresql';
 
 @Injectable()
 export class ItemsService {
   constructor(
     @InjectRepository(ItemEntity)
-    private readonly itemRepository: EntityRepository<ItemEntity>
+    private readonly itemRepository: EntityRepository<ItemEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: EntityRepository<UserEntity>,
   ) {}
 
   async create(item: Item): Promise<ItemEntity> {
-    console.log("AJTEM", item);
-    const newItem = this.itemRepository.create(item)
-    console.log("NJUAJTEM", newItem);
+    let newItem : any;
+    newItem = await this.itemRepository.findOne({ id: item.id })
+    if (!newItem) newItem = this.itemRepository.create(item);
+    const user = await this.userRepository.findOne({ id: newItem.author });
+    if (!user.items.isInitialized) {
+      await user.items.init({ populate: [...user.items, newItem.id] })
+    }
+    if (!newItem.votes.isInitialized) {
+      await newItem.votes.init({ populate: [...newItem.votes] })
+    }
+    await this.userRepository.persistAndFlush(user)
     await this.itemRepository.persistAndFlush(newItem)
     return newItem;
   }
 
   async findAll(): Promise<ItemEntity[]> {
+    const users = await this.userRepository.findAll()
+    console.log(users);
     return await this.itemRepository.findAll()
   }
 
