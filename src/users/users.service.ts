@@ -38,8 +38,12 @@ export class UsersService {
   async findOne(id: number): Promise<UserEntity> {
     const newUser = await this.userRepository.findOne({ id })
     await newUser.items.init()
+    await newUser.votes.init()
     for (let i = 0;i < newUser.items.length; i++) {
       newUser.items.hydrate(Array.from(newUser.items))
+    }
+    for (let i = 0;i < newUser.votes.length; i++) {
+      newUser.votes.hydrate(Array.from(newUser.votes))
     }
     newUser.items.populated();
     return newUser

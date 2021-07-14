@@ -28,12 +28,12 @@ export class ControlController {
   }
 
   @Put(":id")
-  async update(@Param("id") id: number, control: Control) : Promise<ControlEntity> {
+  async update(@Param("id") id: number, @Body() control: Control) : Promise<ControlEntity> {
     return await this.controlService.update(id, control)
   }
 
   @Delete(":id")
-  async remove(@Param(":id") id: number) : Promise<ControlEntity> {
+  async remove(@Param("id") id: number) : Promise<ControlEntity> {
     return await this.controlService.remove(id)
   }
 }

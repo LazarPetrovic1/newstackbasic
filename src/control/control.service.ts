@@ -19,21 +19,16 @@ export class ControlService {
   ) {}
 
   async create(control: Control) : Promise<ControlEntity> {
-    console.log("LIKING", control);
-    
-    let vote : any;
+    let vote: ControlEntity;
     vote = await this.controlRepository.findOne({ id: control.id })
     if (!vote) vote = this.controlRepository.create(control)
     const user = await this.userRepository.findOne({ id: vote.user.id })
     const item = await this.itemRepository.findOne({ id: vote.item.id })
     if (!user.votes.isInitialized) await user.votes.init({ populate: [...Array.from(user.votes).map(vote => vote.id.toString()), vote.id.toString()] })
     if (!item.votes.isInitialized) await item.votes.init({ populate: [...Array.from(item.votes).map(vote => vote.id.toString()), vote.id.toString()] })
-    console.log("JUZERENDAJTUM", { user, item });
-    
+    await this.controlRepository.persistAndFlush(vote)
     await this.itemRepository.persistAndFlush(item)
     await this.userRepository.persistAndFlush(user)
-    console.log("JUZERAJTEMVOUT", { user, item, vote });
-    await this.controlRepository.persistAndFlush(vote)
     return vote;
   }
 
@@ -55,14 +50,18 @@ export class ControlService {
   }
   
   async update(id: number, control: Control) : Promise<ControlEntity> {
+    console.log("KONTROLIAJDI", { id, control });
     const newControl = this.controlRepository.create(control)
     await this.controlRepository.nativeUpdate({ id }, newControl)
+    console.log("NEWKANCRAL", { newControl });
     return newControl;
   }
 
   async remove(id: number): Promise<ControlEntity> {
+    console.log("AJDI", id);
     const vote = await this.controlRepository.findOne({ id })
-    await this.controlRepository.removeAndFlush(vote)
+    console.log("VOUT", vote);
+    await this.controlRepository.nativeDelete({ id })
     return vote;
   }
 }

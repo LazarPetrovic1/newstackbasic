@@ -21,10 +21,10 @@ export class ItemsService {
     if (!newItem) newItem = this.itemRepository.create(item);
     const user = await this.userRepository.findOne({ id: newItem.author });
     if (!user.items.isInitialized) {
-      await user.items.init({ populate: [...user.items, newItem.id] })
+      await user.items.init({ populate: [...Array.from(user.items).map(item => item.id), newItem.id] })
     }
     if (!newItem.votes.isInitialized) {
-      await newItem.votes.init({ populate: [...newItem.votes] })
+      await newItem.votes.init({ populate: [...Array.from(newItem.votes).map(vote => vote)] })
     }
     await this.userRepository.persistAndFlush(user)
     await this.itemRepository.persistAndFlush(newItem)
@@ -32,9 +32,15 @@ export class ItemsService {
   }
 
   async findAll(): Promise<ItemEntity[]> {
-    const users = await this.userRepository.findAll()
-    console.log(users);
-    return await this.itemRepository.findAll()
+    const items = await this.itemRepository.findAll()
+    for await (const item of items) {
+      await item.votes.init()
+      for (let i = 0; i < item.votes.length; i++) {
+        item.votes.hydrate(Array.from(item.votes))
+      }
+      item.votes.populated()
+    }
+    return items
   }
 
   async update(id: number, item: Item): Promise<ItemEntity> {
@@ -44,7 +50,14 @@ export class ItemsService {
   }
 
   async findOne(id: number): Promise<ItemEntity> {
-    return await this.itemRepository.findOne({ id })
+    const item = await this.itemRepository.findOne({ id })
+    await item.votes.init()
+    for (let i = 0;i < item.votes.length; i++) {
+      item.votes.hydrate(Array.from(item.votes))
+    }
+    item.votes.populated();
+    console.log("AJTEM", item);
+    return item
   }
 
   async remove(id: number): Promise<ItemEntity> {

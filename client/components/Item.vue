@@ -13,11 +13,11 @@
       <p>Updated at: {{ updated_at }}</p>
     </nuxt-link>
     <div class="bar">
-      <button @click="like">
-        <fa-icon :icon="['fas', 'thumbs-up']" /> <span v-if="control">{{ control.length }}</span>
+      <button @click="like" v-if="likes !== null && control">
+        <fa-icon :icon="['fas', 'thumbs-up']" :class="{ liked: likes.filter(x => parseInt(x.user) === parseInt(user.id)).length > 0 }" /> <span>{{ likes.length }}</span>
       </button>
-      <button @click="dislike">
-        <fa-icon :icon="['fas', 'thumbs-down']" /> <span v-if="control">{{ control.length }}</span>
+      <button @click="dislike" v-if="dislikes !== null && control">
+        <fa-icon :icon="['fas', 'thumbs-down']" :class="{ disliked: dislikes.filter(x => parseInt(x.user) === parseInt(user.id)).length > 0 }" /> <span>{{ dislikes.length }}</span>
       </button>
     </div>
   </div>
@@ -33,12 +33,18 @@ export default {
   },
   data() {
     return {
-      control: null
+      control: null,
+      likes: 0,
+      dislikes: 0,
+      user: null
     }
   },
   async mounted() {
     const res = await this.$axios.get(`http://localhost:4500/control/item/${this.$props.item.id}`)
     this.control = await res.data
+    this.user = this.$store.getters.initUser
+    this.likes = this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.value > 0)
+    this.dislikes = this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.value < 0)
   },
   computed: {
     contentsplitter() {
@@ -53,7 +59,6 @@ export default {
     ...mapGetters({
       initUser: 'initUser'
     }),
-    ...mapState(['user'])
   },
   methods: {
     async like() {
@@ -63,22 +68,84 @@ export default {
             "Content-Type": "application/json"
           }
         }
-        const user = await this.$store.getters.initUser 
-        const body = JSON.stringify({
+        const body = {
           value: 1,
-          user,
-          item: this.$props.item
-        })
+          user: this.user.id,
+          item: this.$props.item.id
+        }
+        const hasVoted = await this.control.find(vote => vote.user === this.user.id && vote.item === this.$props.item.id)
+        if (hasVoted && hasVoted.id) {
+          body.id = hasVoted.id
+        }
+        console.log("HEZVOUTID", hasVoted);
         console.log("BARI", body);
-        const res = await this.$axios.post(`http://localhost:4500/control`, body, config)
-        console.log("REZ TACKA DEJTA", res.data);
+        if (hasVoted && Object.keys(hasVoted).length > 0 && hasVoted.value === 1) {
+          await this.$axios.delete(`http://localhost:4500/control/${hasVoted.id}`)
+          this.control = await this.control.filter(vote => vote.id !== hasVoted.id)
+          this.likes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.user !== hasVoted.id && hasVoted.value > 0)
+          this.dislikes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.value !== hasVoted.id && hasVoted.value < 0)
+          return
+        }
+        if (hasVoted && Object.keys(hasVoted).length > 0 && hasVoted.value === -1) {
+          const newVote = await this.$axios.put(`http://localhost:4500/control/${hasVoted.id}`, JSON.stringify(body), config)
+          console.log("NJUVOUT", newVote.data);
+          this.control = await this.control.map(vote => vote.id === newVote.data.id ? newVote.data : vote)
+          this.likes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.user !== newVote.data.id && vote.value > 0)
+          this.dislikes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.user !== newVote.data.id && vote.value < 0)
+          return
+        }
+        const res = await this.$axios.post(`http://localhost:4500/control`, JSON.stringify(body), config)
+        await this.control.push(res.data)
+        this.likes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.value > 0)
+        this.dislikes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.value < 0)
+        await this.$emit("likeDislikeEvent", res.data)
       } catch (e) {
         console.warn(e.name, e.message);
         this.control = []
       }
     },
-    dislike() {
-
+    async dislike() {
+      try {
+        const config = {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+        const body = {
+          value: -1,
+          user: this.user.id,
+          item: this.$props.item.id
+        }
+        const hasVoted = await this.control.find(vote => vote.user === this.user.id && vote.item === this.$props.item.id)
+        if (hasVoted && hasVoted.id) {
+          body.id = hasVoted.id
+        }
+        console.log("HEZVOUTID", hasVoted);
+        console.log("BARI", body);
+        if (hasVoted && Object.keys(hasVoted).length > 0 && hasVoted.value === -1) {
+          await this.$axios.delete(`http://localhost:4500/control/${hasVoted.id}`)
+          this.control = await this.control.filter(vote => vote.id !== hasVoted.id)
+          this.likes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.user !== hasVoted.id && hasVoted.value > 0)
+          this.dislikes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.value !== hasVoted.id && hasVoted.value < 0)
+          return
+        }
+        if (hasVoted && Object.keys(hasVoted).length > 0 && hasVoted.value === 1) {
+          const newVote = await this.$axios.put(`http://localhost:4500/control/${hasVoted.id}`, JSON.stringify(body), config)
+          console.log("NJUVOUT", newVote.data);
+          this.control = await this.control.map(vote => vote.id === newVote.data.id ? newVote.data : vote)
+          this.likes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.user !== newVote.data.id && vote.value > 0)
+          this.dislikes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.user !== newVote.data.id && vote.value < 0)
+          return
+        }
+        const res = await this.$axios.post(`http://localhost:4500/control`, JSON.stringify(body), config)
+        await this.control.push(res.data)
+        this.likes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.value > 0)
+        this.dislikes = await this.control.filter(vote => parseInt(vote.item) === parseInt(this.$props.item.id)).filter(vote => vote.value < 0)
+        await this.$emit("likeDislikeEvent", res.data)
+      } catch (e) {
+        console.warn(e.name, e.message);
+        this.control = []
+      }
     }
   }
 }
@@ -157,4 +224,7 @@ export default {
     padding: 0.5rem;
     border-radius: 1rem;
   }
+
+  .liked { color: green; }
+  .disliked { color: red; }
 </style>
