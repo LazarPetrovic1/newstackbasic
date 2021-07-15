@@ -174,6 +174,7 @@ export default {
 
   .lead {
     font-size: 22px;
+    word-break: break-all;
   }
 
   .image {

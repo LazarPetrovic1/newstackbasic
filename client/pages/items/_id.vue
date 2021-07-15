@@ -3,7 +3,12 @@
     <div class="container" v-if="Object.keys(item).length > 0">
       <h2 class="title" v-if="item.title">{{ item.title }}</h2>
       <p class="content" v-if="item.content">{{ item.content.replace(/\\n/g, "\n") }}</p>
-      <input placeholder="Add a comment" class="field w-500 dib" type="text" v-model="comment">
+      <div v-if="comments.length > 0">
+        <Comment v-for="comment in comments" :key="comment.id" :comment="comment" />
+      </div>
+      <form @submit.prevent="addComment">
+        <input placeholder="Add a comment" class="field w-500 dib" type="text" v-model="comment">
+      </form>
     </div>
     <div v-else>
       Loading...
@@ -12,16 +17,27 @@
 </template>
 
 <script>
+import Comment from "../../components/Comment.vue"
+
 export default {
+  props: {
+    Comment
+  },
   data() {
     return {
       item: {},
-      comment: ""
+      comment: "",
+      comments: []
     }
   },
   async mounted() {
-    const res = await this.$axios.get(`http://localhost:4500/items/${this.$route.params.id}`)
-    this.item = await res.data
+    (async () => {
+      const res = await this.$axios.get(`http://localhost:4500/items/${this.$route.params.id}`)
+      this.item = await res.data
+    })()
+    const res = await this.$axios.get(`http://localhost:4500/comments/item/${this.$route.params.id}`)
+    console.log("COMMENTS", res.data);
+    this.comments = await res.data
   },
   head() {
     return {
@@ -35,6 +51,23 @@ export default {
           content: `This is the item by id`
         }
       ]
+    }
+  },
+  methods: {
+    async addComment() {
+      const config = {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+      const body = JSON.stringify({
+        item: this.$route.params.id,
+        text: this.comment,
+        user: this.item.author
+      })
+      const res = await this.$axios.post(`http://localhost:4500/comments`, body, config)
+      await this.comments.unshift(res.data)
+      this.comment = ""
     }
   }
 }

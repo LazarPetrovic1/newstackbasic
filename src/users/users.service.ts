@@ -24,7 +24,23 @@ export class UsersService {
   }
 
   async findAll(): Promise<UserEntity[]> {
-    return await this.userRepository.findAll();
+    const users = await this.userRepository.findAll()
+    for await (const newUser of users) {
+      await newUser.items.init()
+      await newUser.votes.init()
+      await newUser.messages.init()
+      for (let i = 0; i < newUser.items.length; i++) {
+        newUser.items.hydrate(Array.from(newUser.items))
+      }
+      for (let i = 0; i < newUser.votes.length; i++) {
+        newUser.votes.hydrate(Array.from(newUser.votes))
+      }
+      for (let i = 0; i < newUser.messages.length; i++) {
+        newUser.messages.hydrate(Array.from(newUser.messages))
+      }
+      newUser.items.populated();
+    }
+    return users;
   }
 
   async update(id: number, user: User): Promise<UserEntity> {

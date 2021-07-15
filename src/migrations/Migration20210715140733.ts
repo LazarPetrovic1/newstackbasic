@@ -1,6 +1,6 @@
 import { Migration } from '@mikro-orm/migrations';
 
-export class Migration20210714083952 extends Migration {
+export class Migration20210715140733 extends Migration {
 
   async up(): Promise<void> {
     this.addSql('create table "user" ("id" serial primary key, "email" varchar(255) not null, "name" varchar(255) not null, "password" varchar(255) not null, "created_at" timestamptz(0) not null, "updated_at" timestamptz(0) not null);');
@@ -11,10 +11,20 @@ export class Migration20210714083952 extends Migration {
 
     this.addSql('create table "control" ("id" serial primary key, "value" int4 not null, "created_at" timestamptz(0) not null, "updated_at" timestamptz(0) not null, "user_id" int4 not null, "item_id" int4 not null);');
 
+    this.addSql('create table "comment" ("id" serial primary key, "text" text not null, "created_at" timestamptz(0) not null, "updated_at" timestamptz(0) not null, "user_id" int4 not null, "item_id" int4 not null);');
+
+    this.addSql('create table "message" ("id" serial primary key, "text" text not null, "note" text not null, "created_at" timestamptz(0) not null, "updated_at" timestamptz(0) not null, "to_user_id" int4 not null, "from_user_id" int4 not null, "status" varchar(255) not null);');
+
     this.addSql('alter table "item" add constraint "item_author_id_foreign" foreign key ("author_id") references "user" ("id") on update cascade;');
 
     this.addSql('alter table "control" add constraint "control_user_id_foreign" foreign key ("user_id") references "user" ("id") on update cascade on delete CASCADE;');
     this.addSql('alter table "control" add constraint "control_item_id_foreign" foreign key ("item_id") references "item" ("id") on update cascade on delete CASCADE;');
+
+    this.addSql('alter table "comment" add constraint "comment_user_id_foreign" foreign key ("user_id") references "user" ("id") on update cascade on delete CASCADE;');
+    this.addSql('alter table "comment" add constraint "comment_item_id_foreign" foreign key ("item_id") references "item" ("id") on update cascade on delete CASCADE;');
+
+    this.addSql('alter table "message" add constraint "message_to_user_id_foreign" foreign key ("to_user_id") references "user" ("id") on update cascade;');
+    this.addSql('alter table "message" add constraint "message_from_user_id_foreign" foreign key ("from_user_id") references "user" ("id") on update cascade;');
   }
 
 }

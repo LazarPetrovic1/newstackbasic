@@ -3,7 +3,7 @@ import { Comment as CommentEntity } from 'src/entities/Comment';
 import { CommentService } from './comment.service';
 import { Comment } from './interfaces/comment.interface';
 
-@Controller('comment')
+@Controller('comments')
 export class CommentController {
   constructor(private commentService: CommentService) {}
 

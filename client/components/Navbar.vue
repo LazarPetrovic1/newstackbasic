@@ -13,6 +13,26 @@
         <fa-icon :icon="['fas', 'mail-bulk']" />
         <nuxt-link to="/items">Posts</nuxt-link>
       </li>
+      <li style="position: relative;" @mouseleave="hideDD">
+        <fa-icon :icon="['fas', 'history']" />
+        <button @click="showDD" class="nuxt-link-button pointer">
+          History...
+        </button>
+        <div v-if="showDropDown" class="additional">
+          <div>
+            <nuxt-link to="/history/users">...of users</nuxt-link>
+            <fa-icon :icon="['fas', 'users']" />
+          </div>
+          <div>
+            <nuxt-link to="/history/items">...of items</nuxt-link>
+            <fa-icon :icon="['fas', 'file-import']" />
+          </div>
+          <div>
+            <nuxt-link to="/history/comments">...of comments</nuxt-link>
+            <fa-icon :icon="['fas', 'comments']" />
+          </div>
+        </div>
+      </li>
       <li v-if="isUser">
         <fa-icon :icon="['fas', 'sign-out-alt']" />
         <button @click="logout" class="nuxt-link-button pointer">Sign out</button>
@@ -38,6 +58,7 @@ export default {
     return {
       token: '',
       isUser: false,
+      showDropDown: false
     }
   },
   computed: {
@@ -64,6 +85,12 @@ export default {
       this.$router.push("/login")
       this.token = ''
       this.isUser = false
+    },
+    showDD() {
+      this.showDropDown = true
+    },
+    hideDD() {
+      this.showDropDown = false
     }
   },
   watch: {
@@ -114,5 +141,23 @@ export default {
 .nuxt-link-button:active,
 .nuxt-link-button:focus {
   outline: none;
+}
+
+.additional {
+  position: absolute;
+  min-width: 250px;
+  z-index: 5;
+  background: #111;
+}
+
+.additional > div {
+  display: flex;
+  justify-content: space-between;
+  transition: all 100ms;
+  cursor: pointer
+}
+
+.additional > div:hover {
+  background: #333;
 }
 </style>
