@@ -33,6 +33,10 @@
           </div>
         </div>
       </li>
+      <li>
+        <fa-icon :icon="['fas', 'folder']" />
+        <nuxt-link @click="logout" to="/logs">Logs</nuxt-link>
+      </li>
       <li v-if="isUser">
         <fa-icon :icon="['fas', 'sign-out-alt']" />
         <button @click="logout" class="nuxt-link-button pointer">Sign out</button>

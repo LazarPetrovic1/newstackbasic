@@ -1,5 +1,4 @@
-import { Repository } from "@mikro-orm/core";
-import { EntityRepository } from "@mikro-orm/postgresql";
+import { Repository, EntityRepository } from "@mikro-orm/core";
 import { Message } from "../entities/Message";
 
 @Repository(Message)

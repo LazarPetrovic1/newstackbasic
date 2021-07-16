@@ -18,6 +18,9 @@ import { Comment } from './entities/Comment';
 import { MessagesController } from './messages/messages.controller';
 import { MessagesModule } from './messages/messages.module';
 import { Message } from './entities/Message';
+import { HistoryController } from './history/history.controller';
+import { HistoryModule } from './history/history.module';
+import { History } from './entities/History';
 
 const defaultOptions : Options = {
   type: 'postgresql',
@@ -32,15 +35,16 @@ const defaultOptions : Options = {
     MikroOrmModule.forRoot({
       ...defaultOptions,
       host: 'localhost',
-      entities: [User, Item, Control, Comment, Message]
+      entities: [User, Item, Control, Comment, Message, History]
     } as Options),
     UsersModule,
     ItemsModule,
     ControlModule,
     CommentModule,
-    MessagesModule
+    MessagesModule,
+    HistoryModule
   ],
-  controllers: [AppController, UsersController, ItemsController, ControlController, CommentController, MessagesController],
+  controllers: [AppController, UsersController, ItemsController, ControlController, CommentController, MessagesController, HistoryController],
   providers: [AppService],
 })
 export class AppModule {}

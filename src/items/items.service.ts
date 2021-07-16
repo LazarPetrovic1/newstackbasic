@@ -1,10 +1,10 @@
-import { QueryOrder } from '@mikro-orm/core';
-import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityRepository } from '@mikro-orm/postgresql';
+import { Injectable } from '@nestjs/common';
 import { Item as ItemEntity } from 'src/entities/Item';
 import { Item } from './interfaces/item.interface';
 import { User as UserEntity } from 'src/entities/User';
-import { EntityRepository } from '@mikro-orm/postgresql';
+import { History as HistoryEntity } from 'src/entities/History';
 
 @Injectable()
 export class ItemsService {
@@ -13,11 +13,18 @@ export class ItemsService {
     private readonly itemRepository: EntityRepository<ItemEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: EntityRepository<UserEntity>,
+    @InjectRepository(HistoryEntity)
+    private readonly historyRepository: EntityRepository<HistoryEntity>
   ) {}
 
   async create(item: Item): Promise<ItemEntity> {
     let newItem : any;
     newItem = await this.itemRepository.findOne({ id: item.id })
+    const newLog = this.historyRepository.create({
+      log: `Item (title: ${item.title}) has been successfully created.`,
+      type: "item",
+      verb: "POST"
+    })
     if (!newItem) newItem = this.itemRepository.create(item);
     const user = await this.userRepository.findOne({ id: newItem.author });
     if (!user.items.isInitialized) {
@@ -26,6 +33,7 @@ export class ItemsService {
     if (!newItem.votes.isInitialized) {
       await newItem.votes.init({ populate: [...Array.from(newItem.votes).map(vote => vote)] })
     }
+    await this.historyRepository.persistAndFlush(newLog)
     await this.userRepository.persistAndFlush(user)
     await this.itemRepository.persistAndFlush(newItem)
     return newItem;
@@ -45,6 +53,12 @@ export class ItemsService {
 
   async update(id: number, item: Item): Promise<ItemEntity> {
     const newItem = this.itemRepository.create(item)
+    const newLog = this.historyRepository.create({
+      log: `Item (title: ${item.title}) has been successfully updated.`,
+      type: "item",
+      verb: "PUT"
+    })
+    await this.historyRepository.persistAndFlush(newLog)
     await this.itemRepository.nativeUpdate({ id }, this.itemRepository.create(item))
     return newItem
   }
@@ -62,6 +76,12 @@ export class ItemsService {
 
   async remove(id: number): Promise<ItemEntity> {
     const item = await this.itemRepository.findOne({ id })
+    const newLog = this.historyRepository.create({
+      log: `Item (title: ${item.title}) has been successfully removed.`,
+      type: "item",
+      verb: "DELETE"
+    })
+    await this.historyRepository.persistAndFlush(newLog)
     await this.itemRepository.removeAndFlush(item)
     return item
   }

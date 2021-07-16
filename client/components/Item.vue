@@ -3,8 +3,8 @@
     <span class="id">#{{ $props.item.id }}</span>
     <nuxt-link :to="`/items/${$props.item.id}`">
       <img class="image" :src="src && src.src && src.src.medium" :alt="$props.item.title">
-      <h2 class="center" style="font-size: 30px;">{{ $props.item.title }}</h2>
-      <p class="lead">{{ contentsplitter }}</p>
+      <h2 class="center break" style="font-size: 30px;">{{ $props.item.title }}</h2>
+      <p class="lead break">{{ contentsplitter }}</p>
       <p>Author: {{ $props.item.author }}</p>
       <p style="display: flex; flex-direction: row; padding: 0.5rem 0">
         <span class="meta-tag" v-for="tag in $props.item.meta" :key="tag">{{ tag }}</span>
@@ -174,6 +174,9 @@ export default {
 
   .lead {
     font-size: 22px;
+  }
+
+  .break {
     word-break: break-all;
   }
 

@@ -24,6 +24,8 @@ export class MessagesController {
 
   @Post()
   async create(@Body() createMessageDto: CreateMessageDTO) : Promise<Message> {
+    console.log("BARI", createMessageDto);
+    
     return await this.messagesService.create(createMessageDto)
   }
 
@@ -35,5 +37,10 @@ export class MessagesController {
   @Put(":id")
   async update(@Body() updateMessageDto: CreateMessageDTO, @Param("id") id: number) : Promise<Message> {
     return await this.messagesService.update(id, updateMessageDto)
+  }
+
+  @Put("/status/:id")
+  async updateStatus(@Body() updateMessageDto: CreateMessageDTO, @Param("id") id : number) : Promise<Message> {
+    return await this.messagesService.updateStatus(id, updateMessageDto)
   }
 }

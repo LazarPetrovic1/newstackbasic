@@ -19,6 +19,9 @@
     <div v-else>
       <h2>Nothing happened</h2>
     </div>
+    <div v-if="messages.length > 0 && userState" class="message-holder">
+      <Message :isTheirs="parseInt(userState.id) === parseInt(msg.toUser)" @changeStatus="changeStatus" :removeItem="removeItem" :updateMessage="updateMessage" v-for="msg in messages" :key="msg.id" :message="msg" />
+    </div>
     <div v-if="allUsers.length > 0">
       <UserCard v-for="person in allUsers" :user="person" :key="person.id" />
     </div>
@@ -38,6 +41,7 @@
 import UpdateField from "../components/UpdateField.vue"
 import UserCard from "../components/UserCard.vue"
 import Item from "../components/Item.vue"
+import Message from "../components/Message.vue"
 import { mapGetters } from 'vuex'
 
 export default {
@@ -48,6 +52,9 @@ export default {
     Item
   },
   // PROPS,
+  props: {
+    Message
+  },
   head() {
     return {
       title: "Basic App | Homepage",
@@ -68,13 +75,15 @@ export default {
       password: string,
       allUsers: any[],
       sources: string[],
-      allItems: any[]
+      allItems: any[],
+      messages: any[]
     } = {
       userState: null,
       password: '',
       allUsers: [],
       sources: [],
-      allItems: []
+      allItems: [],
+      messages: []
     }
     return data
   },
@@ -91,6 +100,10 @@ export default {
       this.$router.push("/login")
       return;
     }
+    const resp = await this.$axios.get(`http://localhost:4500/messages/to/${JSON.parse(localStorage.getItem('id'))}`)
+    console.log("REZP TACKA DEJTA", resp.data);
+    
+    this.messages = await resp.data
     await this.$store.dispatch('populateUsers');
     await this.$store.dispatch("items/getAllItems")
     await this.$store.dispatch('getUser', JSON.parse(localStorage.getItem('id')));
@@ -103,6 +116,11 @@ export default {
     this.sources = res.data.photos
   },
   methods: {
+    async changeStatus(params : any) {
+      const filteredMessages = await this.messages.filter(msg => parseInt(msg.id) !== parseInt(params.id))
+      const newMessages = [params.item, ...filteredMessages]
+      this.messages = newMessages
+    },
     updateUser (newUser: Object) {
       this.$store.commit("addUser", newUser)
     },
@@ -117,6 +135,28 @@ export default {
     updateItems(newItem) {
       const allNewItems = this.allItems.map(item => item.id === newItem.item ? { ...item, votes: [...item.votes, newItem ] } : item)
       this.allItems = allNewItems
+    },
+    async removeItem(id) {
+      try {
+        await this.$axios.delete(`http://localhost:4500/messages/${id}`)
+        this.messages = await this.messages.filter(msg => parseInt(msg.id) !== parseInt(id))
+      } catch(e) {
+        this.error = e.message
+      }
+    },
+    async updateMessage(id, msg) {
+      const config = {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+
+      const body = JSON.stringify(msg)
+      const res = await this.$axios.put(`http://localhost:4500/messages/${id}`, body, config)
+      console.log("REZ TACKA DEJTA", res.data);
+      const newMessages = await this.messages.filter(msg => parseInt(msg.id) !== parseInt(id)) 
+      console.log("NJUMESIDZIZ", newMessages);
+      this.messages = [res.data, ...newMessages]
     }
   },
 }
@@ -131,5 +171,12 @@ export default {
   max-width: 1500px;
   margin: auto;
   display: flex;
+}
+
+.message-holder {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  flex-flow: row wrap;
 }
 </style>
